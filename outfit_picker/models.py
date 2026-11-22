@@ -51,6 +51,8 @@ class Wishes:
     owned: list[OwnedItem] = field(default_factory=list)
     # Конкретные вещи, названные в пожеланиях: слот -> поисковая фраза
     requested: dict[str, str] = field(default_factory=dict)
+    # Незнакомый стиль или бренд: слова добавляются к каждому поисковому запросу
+    keywords: str = ""
 
 
 @dataclass
@@ -60,6 +62,7 @@ class Outfit:
     total: int
     budget: int | None
     notes: list[str] = field(default_factory=list)
+    style: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)

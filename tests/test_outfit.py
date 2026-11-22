@@ -93,6 +93,35 @@ def test_pick_outfit_prefers_the_garment_that_was_searched():
     assert {slot: i.id for slot, i in outfit.picks.items()} == {"top": "2", "bottom": "4"}
 
 
+@pytest.mark.parametrize("text, style", [
+    ("индислиз", "indie_sleaze"), ("инди слив", "indie_sleaze"), ("Indie Sleaze образ до 10000", "indie_sleaze"),
+    ("образ в стиле гранж", "grunge"), ("old money на осень", "old_money"), ("деловой образ", "classic"),
+    ("летний образ до 7000", "casual"),
+])
+def test_style_detection(text, style):
+    w = parse_wishes(text)
+    assert (w.style, w.keywords) == (style, "")
+
+
+def test_named_aesthetic_changes_the_searches():
+    w = parse_wishes("индислиз", season="autumn")
+    assert build_query("outerwear", w) == "косуха кожаная"
+    assert build_query("bottom", w) == "джинсы скинни черные"
+
+
+def test_unknown_style_is_searched_as_keywords():
+    assert parse_wishes("образ в стиле carhartt до 5000").keywords == "carhartt"
+    assert parse_wishes("летний образ в спокойных тонах").keywords == ""
+    w = parse_wishes("киберпанк", season="summer", style=None)
+    assert w.keywords == "киберпанк"
+    client = FakeClient({"киберпанк": [item(1, "Футболка киберпанк", 900)], "джинсы": [item(2, "Джинсы", 2000)],
+                         "кроссовки": [item(3, "Кроссовки", 3000)]})
+    outfit = pick_outfit(w, client)
+    assert outfit.picks["top"].id == "1" and outfit.style == "киберпанк"
+    assert any("киберпанк" in n for n in outfit.notes)
+    assert parse_wishes("киберпанк", style="grunge").keywords == ""
+
+
 def test_pick_outfit_reports_missing_slot():
     w = parse_wishes("летний образ", have=["белые кроссовки"])
     outfit = pick_outfit(w, FakeClient({"футболка": [item(1, "Футболка белая", 500)]}))

@@ -5,7 +5,7 @@ import itertools
 from typing import Protocol
 
 from .models import Item, Outfit, Wishes
-from .wishes import COLOR_RU, detect_color, detect_slot, garment_stem, normalize
+from .wishes import COLOR_RU, STYLE_LABELS, detect_color, detect_slot, garment_stem, normalize
 
 NEUTRALS = {"black", "white", "grey", "beige", "navy"}
 # Проверенные сочетания ненейтральных цветов.
@@ -23,6 +23,26 @@ GARMENTS = {
     "sport": {"top": "худи спортивное", "bottom": "спортивные штаны", "bag": "рюкзак спортивный"},
     "street": {"top": "худи оверсайз", "bottom": "карго", "bag": "сумка через плечо"},
     "evening": {"top": "рубашка", "bottom": "брюки", "dress": "вечернее платье", "bag": "клатч"},
+    "indie_sleaze": {"outerwear": "косуха кожаная", "top": "футболка с принтом рок группы",
+                     "bottom": "джинсы скинни черные", "shoes": "кеды converse высокие",
+                     "dress": "платье мини с пайетками", "bag": "сумка кожаная через плечо",
+                     "accessory": "очки солнцезащитные wayfarer"},
+    "grunge": {"outerwear": "куртка джинсовая оверсайз", "top": "рубашка фланелевая в клетку",
+               "bottom": "джинсы рваные", "shoes": "ботинки dr martens", "dress": "платье в цветочек"},
+    "y2k": {"outerwear": "бомбер y2k", "top": "лонгслив y2k", "bottom": "джинсы клеш с низкой посадкой",
+            "shoes": "кроссовки на платформе", "dress": "платье мини y2k", "bag": "сумка багет"},
+    "old_money": {"outerwear": "пальто шерстяное", "top": "свитер кашемировый", "bottom": "брюки со стрелками",
+                  "shoes": "лоферы кожаные", "dress": "платье миди", "bag": "сумка кожаная"},
+    "gorpcore": {"outerwear": "куртка мембранная", "top": "кофта флисовая", "bottom": "брюки трекинговые",
+                 "shoes": "кроссовки salomon", "bag": "рюкзак туристический"},
+    "opium": {"outerwear": "куртка кожаная черная", "top": "лонгслив черный", "bottom": "джинсы клеш черные",
+              "shoes": "ботинки на платформе черные"},
+    "minimal": {"outerwear": "пальто прямое", "top": "футболка базовая", "bottom": "брюки прямые",
+                "shoes": "кеды кожаные белые", "dress": "платье комбинация"},
+    "boho": {"outerwear": "куртка замшевая", "top": "блузка с вышивкой", "bottom": "юбка макси",
+             "shoes": "сапоги казаки", "dress": "платье бохо", "bag": "сумка плетеная"},
+    "military": {"outerwear": "куртка м65", "top": "футболка хаки", "bottom": "брюки карго хаки",
+                 "shoes": "ботинки берцы"},
 }
 SEASONAL = {  # сезон -> слот -> запрос
     "winter": {"outerwear": "пуховик", "shoes": "ботинки зимние", "top": "свитер", "accessory": "шапка"},
@@ -142,11 +162,18 @@ def pick_outfit(wishes: Wishes, client: SearchClient) -> Outfit:
     notes: list[str] = []
     pool: dict[str, list[Item]] = {}
     share_total = sum(BUDGET_SHARE[s] for s in slots) or 1.0
+    keyword_hits = 0
     for slot in slots:
         # Потолок цены на слот — его доля бюджета с запасом, чтобы оставить выбор комбинатору.
         pmax = int(wishes.budget * min(1.0, 1.6 * BUDGET_SHARE[slot] / share_total)) if wishes.budget else None
         query = build_query(slot, wishes)
-        found = _candidates(client.search(query, city=wishes.city, pmax=pmax), slot, wishes, query)
+        found = []
+        if wishes.keywords:
+            styled = f"{query} {wishes.keywords}"
+            found = _candidates(client.search(styled, city=wishes.city, pmax=pmax), slot, wishes, query)
+            keyword_hits += bool(found)
+        if not found:
+            found = _candidates(client.search(query, city=wishes.city, pmax=pmax), slot, wishes, query)
         if found:
             pool[slot] = found
         else:
@@ -164,6 +191,11 @@ def pick_outfit(wishes: Wishes, client: SearchClient) -> Outfit:
         best = tuple(min(pool[s], key=lambda i: i.price) for s in filled)
         notes.append(f"В бюджет {wishes.budget} ₽ уложиться не удалось — показан самый дешёвый комплект.")
 
+    if wishes.keywords and slots:
+        notes.append(
+            f"Стиль «{wishes.keywords}» мне незнаком — добавил эти слова к поиску на Авито." if keyword_hits else
+            f"Стиль «{wishes.keywords}» мне незнаком, и по этим словам ничего не нашлось — показан обычный образ.")
     picks = dict(zip(filled, best or ()))
+    style = wishes.keywords if keyword_hits else STYLE_LABELS.get(wishes.style, wishes.style)
     return Outfit(picks=picks, owned=wishes.owned, total=sum(i.price for i in picks.values()),
-                  budget=wishes.budget, notes=notes)
+                  budget=wishes.budget, notes=notes, style=style)

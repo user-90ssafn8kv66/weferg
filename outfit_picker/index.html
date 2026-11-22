@@ -56,6 +56,7 @@
   .summary { display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
              border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 28px; }
   .summary h2 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .summary h2 small { color: var(--muted); font-weight: 400; font-size: 15px; margin-left: 12px; }
   .total { font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .total small { color: var(--muted); font-size: 14px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px 20px; }
@@ -113,7 +114,12 @@
       <div><label for="style">Стиль</label>
         <select id="style"><option value="">Из текста</option><option value="casual">Повседневный</option>
           <option value="classic">Деловой</option><option value="sport">Спортивный</option>
-          <option value="street">Уличный</option><option value="evening">Вечерний</option></select></div>
+          <option value="street">Уличный</option><option value="evening">Вечерний</option>
+          <option value="indie_sleaze">Инди-слиз</option><option value="grunge">Гранж</option>
+          <option value="y2k">Y2K</option><option value="old_money">Old money</option>
+          <option value="gorpcore">Горпкор</option><option value="opium">Опиум</option>
+          <option value="minimal">Минимализм</option><option value="boho">Бохо</option>
+          <option value="military">Милитари</option></select></div>
       <div><label for="season">Сезон</label>
         <select id="season"><option value="">Из текста</option><option value="winter">Зима</option>
           <option value="spring">Весна</option><option value="summer">Лето</option>
@@ -183,7 +189,9 @@ function renderOutfit(outfit) {
   result.replaceChildren();
 
   const summary = el("div", "summary");
-  summary.append(el("h2", null, "Ваш образ"));
+  const heading = el("h2", null, "Ваш образ");
+  if (outfit.style) heading.append(el("small", null, outfit.style));
+  summary.append(heading);
   const total = el("div", "total", rub(outfit.total));
   if (outfit.budget) total.append(" ", el("small", null, "из " + rub(outfit.budget)));
   summary.append(total);

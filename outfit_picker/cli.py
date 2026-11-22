@@ -7,11 +7,11 @@ import sys
 from .avito import AvitoError, make_client
 from .models import SLOT_NAMES, Outfit
 from .stylist import pick_outfit
-from .wishes import parse_wishes
+from .wishes import STYLE_LABELS, parse_wishes
 
 
 def format_outfit(outfit: Outfit) -> str:
-    lines = []
+    lines = [f"Стиль: {outfit.style}"] if outfit.style else []
     for owned in outfit.owned:
         lines.append(f"{SLOT_NAMES[owned.slot]}: {owned.text} (уже есть)")
     for slot, item in outfit.picks.items():
@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--city", default=None, help="город в адресе Авито, например moskva (по умолчанию вся Россия)")
     parser.add_argument("--budget", type=int, default=None, help="бюджет на весь образ, ₽")
     parser.add_argument("--gender", choices=["male", "female"], default=None)
-    parser.add_argument("--style", choices=["casual", "classic", "sport", "street", "evening"], default=None)
+    parser.add_argument("--style", choices=list(STYLE_LABELS), default=None)
     parser.add_argument("--season", choices=["winter", "spring", "summer", "autumn"], default=None)
     parser.add_argument("--size", default=None, help="размер одежды")
     parser.add_argument("--shoe-size", default=None, help="размер обуви")

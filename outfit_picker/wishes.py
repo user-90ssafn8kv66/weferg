@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import difflib
 import re
 
 from .models import OwnedItem, Wishes
@@ -11,7 +12,7 @@ SLOT_STEMS = {
     "outerwear": ["куртк", "пальто", "пуховик", "тренч", "плащ", "бомбер", "ветровк", "косух",
                   "шуб", "дубленк", "пиджак", "жакет", "парка", "парку"],
     "top": ["футболк", "рубашк", "свитер", "свитшот", "худи", "толстовк", "джемпер", "лонгслив",
-            "блузк", "блуза", "водолазк", "кардиган", "поло"],
+            "блузк", "блуза", "водолазк", "кардиган", "поло", "кофт", "майк"],
     "bottom": ["джинс", "брюк", "штаны", "шорт", "юбк", "чинос", "леггинс", "карго"],
     "dress": ["плать", "сарафан", "комбинезон"],
     "shoes": ["кроссовк", "кеды", "кед ", "ботин", "туфл", "сапог", "лофер", "челси", "сандал",
@@ -41,6 +42,27 @@ STYLE_STEMS = {
     "evening": ["вечерн", "свидани", "праздн", "ресторан", "вечеринк", "evening"],
     "casual": ["кэжуал", "кежуал", "casual", "повседнев", "на каждый день"],
 }
+# Эстетики: названия сравниваются без пробелов и дефисов, поэтому «инди слиз» и «индислиз» — одно и то же.
+AESTHETICS = {
+    "indie_sleaze": ["индислиз", "indiesleaze"],
+    "grunge": ["гранж", "grunge"],
+    "y2k": ["y2k", "нулевых", "двухтысячных"],
+    "old_money": ["олдмани", "oldmoney", "старыеденьги"],
+    "gorpcore": ["горпкор", "gorpcore"],
+    "opium": ["опиум", "opium"],
+    "minimal": ["минимализм", "минималист", "minimal"],
+    "boho": ["бохо", "boho"],
+    "military": ["милитари", "military"],
+}
+STYLE_LABELS = {
+    "casual": "повседневный", "classic": "деловой", "sport": "спортивный", "street": "уличный",
+    "evening": "вечерний", "indie_sleaze": "инди-слиз", "grunge": "гранж", "y2k": "Y2K",
+    "old_money": "old money", "gorpcore": "горпкор", "opium": "опиум", "minimal": "минимализм",
+    "boho": "бохо", "military": "милитари",
+}
+_KEYWORD_STOP = {"до", "на", "и", "с", "со", "для", "в", "во", "есть", "размер", "размера", "бюджет", "образ",
+                 "лук", "к", "под", "у"}
+_FILLER = {"образ", "лук", "аутфит", "хочу", "подбери", "собери", "мне", "стиль", "стиле", "в"}
 SEASON_STEMS = {"winter": ["зим"], "autumn": ["осен"], "spring": ["весн"], "summer": ["лет"]}
 
 _ADJ_ENDINGS = ("ая", "яя", "ый", "ий", "ой", "ые", "ие", "ую", "юю", "ое", "ее", "ых", "их",
@@ -73,6 +95,35 @@ def _find(text: str, stems: list[str]) -> int:
         if m and (best < 0 or m.start() < best):
             best = m.start()
     return best
+
+
+def detect_style(text: str) -> str | None:
+    norm = normalize(text)
+    squashed = re.sub(r"[^а-яa-z0-9]+", "", norm)
+    for style, aliases in AESTHETICS.items():
+        if any(alias in squashed for alias in aliases):
+            return style
+    for style, stems in STYLE_STEMS.items():
+        if _find(norm, stems) >= 0:
+            return style
+    # Опечатки в названиях эстетик: «инди слив».
+    words = re.findall(r"[а-яa-z0-9]+", norm)
+    lookup = {alias: style for style, aliases in AESTHETICS.items() for alias in aliases if len(alias) >= 6}
+    for chunk in words + [a + b for a, b in zip(words, words[1:])]:
+        if close := difflib.get_close_matches(chunk, lookup, n=1, cutoff=0.84):
+            return lookup[close[0]]
+    return None
+
+
+def _style_keywords(norm: str) -> str:
+    """Незнакомый стиль после «в стиле …» — эти слова добавляются к поисковым запросам."""
+    m = re.search(r"(?:в стиле|стиль|стиля|эстетик[а-я]*|вайб[а-я]*)\s+([^.,;!?\n]*)", norm)
+    words: list[str] = []
+    for word in re.findall(r"[а-яa-z0-9-]+", m.group(1)) if m else []:
+        if word in _KEYWORD_STOP or word[0].isdigit() or len(words) == 3:
+            break
+        words.append(word)
+    return " ".join(words)
 
 
 def garment_stem(text: str) -> str | None:
@@ -161,13 +212,13 @@ def parse_wishes(text: str = "", *, have: list[str] | None = None, **overrides) 
         wishes.gender = "female"
     elif re.search(r"мужск|парн|мужчин|для него\b|для мужа", norm):
         wishes.gender = "male"
-    for style, stems in STYLE_STEMS.items():
-        if _find(norm, stems) >= 0:
-            wishes.style = style
-            break
+    style = detect_style(norm)
+    if style:
+        wishes.style = style
+    season_named = False
     for season, stems in SEASON_STEMS.items():
         if _find(norm, stems) >= 0:
-            wishes.season = season
+            wishes.season, season_named = season, True
             break
     wishes.budget = _parse_budget(norm)
     if m := re.search(r"размер\w*\s+(?:одежды\s+)?([a-z]{1,4}|\d{2,3})\b", norm):
@@ -180,7 +231,18 @@ def parse_wishes(text: str = "", *, have: list[str] | None = None, **overrides) 
     # Цвет, стоящий при конкретной вещи, относится только к ней, а не ко всему образу.
     wishes.colors = [c for c in detect_colors(wanted_text) if c not in requested_colors]
 
+    if not style:
+        wishes.keywords = _style_keywords(norm)
+        recognized = (wishes.owned or wishes.requested or wishes.colors or wishes.budget or wishes.gender
+                      or wishes.size or wishes.shoe_size or season_named)
+        words = [w for w in re.findall(r"[а-яa-z0-9-]+", norm) if w not in _FILLER]
+        # Короткий запрос, в котором ничего не распознано, — скорее всего название стиля или бренда.
+        if not wishes.keywords and not recognized and 1 <= len(words) <= 3:
+            wishes.keywords = " ".join(words)
+
     for key, value in overrides.items():
         if value is not None:
             setattr(wishes, key, value)
+    if overrides.get("style"):
+        wishes.keywords = ""
     return wishes
