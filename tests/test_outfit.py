@@ -108,6 +108,9 @@ def test_named_aesthetic_changes_the_searches():
     w = parse_wishes("индислиз", season="autumn")
     assert build_query("outerwear", w) == "косуха кожаная"
     assert build_query("bottom", w) == "джинсы скинни черные"
+    winter = parse_wishes("индислиз на зиму")
+    assert build_query("outerwear", winter) == "дубленка"
+    assert build_query("bottom", winter) == "джинсы скинни черные"
 
 
 def test_unknown_style_is_searched_as_keywords():

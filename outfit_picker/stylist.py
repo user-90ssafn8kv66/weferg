@@ -60,6 +60,15 @@ STYLE_OVERRIDES = {  # (стиль, сезон) -> слот -> запрос; с�
     ("evening", "autumn"): {"shoes": "туфли", "outerwear": "пальто"},
     ("evening", "winter"): {"outerwear": "пальто"},
     ("sport", "summer"): {"bottom": "шорты спортивные"},
+    ("indie_sleaze", "winter"): {"outerwear": "дубленка", "top": "свитер полосатый",
+                                 "shoes": "ботинки челси кожаные"},
+    ("grunge", "winter"): {"outerwear": "парка зимняя", "top": "свитер вязаный оверсайз",
+                           "shoes": "ботинки dr martens зимние"},
+    ("y2k", "winter"): {"outerwear": "пуховик короткий"},
+    ("gorpcore", "winter"): {"outerwear": "пуховик the north face"},
+    ("opium", "winter"): {"outerwear": "пуховик черный"},
+    ("boho", "winter"): {"outerwear": "дубленка"},
+    ("military", "winter"): {"outerwear": "парка зимняя хаки"},
 }
 BUDGET_SHARE = {"outerwear": 0.35, "top": 0.15, "bottom": 0.2, "dress": 0.35, "shoes": 0.25,
                 "bag": 0.1, "accessory": 0.05}
