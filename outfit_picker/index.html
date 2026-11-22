@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Образ с Авито</title>
+<style>
+  :root {
+    --bg: #faf9f7; --ink: #1a1a1a; --muted: #8a8780; --line: #e6e3de; --card: #fff; --accent: #1a1a1a;
+    --error: #b3382c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141414; --ink: #f1efea; --muted: #8d8a84; --line: #2b2a28; --card: #1c1c1b; --accent: #f1efea;
+            --error: #ef8a7d; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 72px 24px 96px; }
+  h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px; }
+  .lead { color: var(--muted); margin: 0 0 40px; }
+  label { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+          margin-bottom: 8px; }
+  textarea, input, select {
+    width: 100%; font: inherit; color: inherit; background: transparent; border: 0;
+    border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0 10px; outline: none;
+    transition: border-color .15s;
+  }
+  textarea { resize: none; font-size: 20px; line-height: 1.4; min-height: 64px; }
+  textarea:focus, input:focus, select:focus { border-color: var(--ink); }
+  ::placeholder { color: var(--muted); opacity: .7; }
+  select { appearance: none; cursor: pointer; }
+  select option { background: var(--card); color: var(--ink); }
+  .field { margin-bottom: 32px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 24px; margin-bottom: 40px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px;
+          padding: 4px 6px 4px 14px; font-size: 14px; background: var(--card); }
+  .chip button { all: unset; cursor: pointer; width: 20px; height: 20px; line-height: 20px; text-align: center;
+                 border-radius: 50%; color: var(--muted); }
+  .chip button:hover, .chip button:focus-visible { background: var(--line); color: var(--ink); }
+  .chip.static { padding: 4px 14px; }
+  .primary {
+    font: inherit; font-weight: 500; color: var(--bg); background: var(--accent); border: 0; border-radius: 999px;
+    padding: 14px 32px; cursor: pointer; transition: opacity .15s;
+  }
+  .primary:hover { opacity: .85; }
+  .primary:disabled { opacity: .45; cursor: default; }
+  .primary:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  #status { margin-top: 28px; color: var(--muted); min-height: 24px; }
+  #status.error { color: var(--error); }
+  #result { margin-top: 56px; }
+  .summary { display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+             border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 28px; }
+  .summary h2 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .total { font-size: 22px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .total small { color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px 20px; }
+  .card { display: block; color: inherit; text-decoration: none; }
+  .photo { aspect-ratio: 3 / 4; background: var(--line); border-radius: 14px; overflow: hidden; display: grid;
+           place-items: center; color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+  .card:hover .photo img { transform: scale(1.03); }
+  .slot { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .title { margin: 2px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .price { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .place { color: var(--muted); font-size: 13px; }
+  .owned { margin-bottom: 28px; }
+  .notes { margin: 32px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 14px; }
+  .notes li + li { margin-top: 6px; }
+  @media (max-width: 520px) { main { padding-top: 40px; } h1 { font-size: 28px; } .grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Образ с Авито</h1>
+  <p class="lead">Опишите, что хочется, — соберём комплект из настоящих объявлений.</p>
+
+  <form id="form">
+    <div class="field">
+      <label for="wishes">Пожелания</label>
+      <textarea id="wishes" rows="2" placeholder="Деловой образ на осень до 20 тысяч, в спокойных тонах"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="have">Уже есть</label>
+      <input id="have" type="text" placeholder="Белые кроссовки — и Enter" autocomplete="off">
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="row">
+      <div><label for="city">Город</label>
+        <select id="city">
+          <option value="">Вся Россия</option>
+          <option value="moskva">Москва</option>
+          <option value="sankt-peterburg">Санкт-Петербург</option>
+          <option value="novosibirsk">Новосибирск</option>
+          <option value="ekaterinburg">Екатеринбург</option>
+          <option value="kazan">Казань</option>
+          <option value="nizhniy_novgorod">Нижний Новгород</option>
+          <option value="krasnodar">Краснодар</option>
+          <option value="samara">Самара</option>
+          <option value="rostov-na-donu">Ростов-на-Дону</option>
+        </select></div>
+      <div><label for="budget">Бюджет, ₽</label>
+        <input id="budget" type="number" min="0" step="500" placeholder="Из текста"></div>
+      <div><label for="gender">Для кого</label>
+        <select id="gender"><option value="">Из текста</option><option value="female">Женский</option>
+          <option value="male">Мужской</option></select></div>
+      <div><label for="style">Стиль</label>
+        <select id="style"><option value="">Из текста</option><option value="casual">Повседневный</option>
+          <option value="classic">Деловой</option><option value="sport">Спортивный</option>
+          <option value="street">Уличный</option><option value="evening">Вечерний</option></select></div>
+      <div><label for="season">Сезон</label>
+        <select id="season"><option value="">Из текста</option><option value="winter">Зима</option>
+          <option value="spring">Весна</option><option value="summer">Лето</option>
+          <option value="autumn">Осень</option></select></div>
+      <div><label for="size">Размер</label>
+        <input id="size" type="text" placeholder="48 или M" autocomplete="off"></div>
+      <div><label for="shoe_size">Обувь</label>
+        <input id="shoe_size" type="text" placeholder="42" autocomplete="off"></div>
+    </div>
+
+    <button class="primary" id="submit" type="submit">Подобрать образ</button>
+    <div id="status" role="status" aria-live="polite"></div>
+  </form>
+
+  <section id="result" hidden></section>
+</main>
+
+<script>
+const SLOTS = {outerwear: "Верхняя одежда", top: "Верх", bottom: "Низ", dress: "Платье", shoes: "Обувь",
+               bag: "Сумка", accessory: "Аксессуар"};
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text != null) node.textContent = text;
+  return node;
+};
+const rub = n => n.toLocaleString("ru-RU") + " ₽";
+const have = [];
+
+function renderChips() {
+  $("chips").replaceChildren(...have.map((text, i) => {
+    const chip = el("span", "chip", text);
+    const remove = el("button", null, "×");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "Убрать: " + text);
+    remove.onclick = () => { have.splice(i, 1); renderChips(); };
+    chip.append(remove);
+    return chip;
+  }));
+}
+
+function commitHave() {
+  for (const part of $("have").value.split(",")) {
+    const text = part.trim();
+    if (text && !have.includes(text)) have.push(text);
+  }
+  $("have").value = "";
+  renderChips();
+}
+
+$("have").addEventListener("keydown", e => {
+  if (e.key === "Enter" || e.key === ",") { e.preventDefault(); commitHave(); }
+});
+$("have").addEventListener("blur", commitHave);
+$("wishes").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("form").requestSubmit(); }
+});
+
+function setStatus(text, isError) {
+  $("status").textContent = text;
+  $("status").className = isError ? "error" : "";
+}
+
+function renderOutfit(outfit) {
+  const result = $("result");
+  result.replaceChildren();
+
+  const summary = el("div", "summary");
+  summary.append(el("h2", null, "Ваш образ"));
+  const total = el("div", "total", rub(outfit.total));
+  if (outfit.budget) total.append(" ", el("small", null, "из " + rub(outfit.budget)));
+  summary.append(total);
+  result.append(summary);
+
+  if (outfit.owned.length) {
+    const owned = el("div", "chips owned");
+    for (const item of outfit.owned) owned.append(el("span", "chip static", item.text + " — уже есть"));
+    result.append(owned);
+  }
+
+  const grid = el("div", "grid");
+  for (const [slot, item] of Object.entries(outfit.picks)) {
+    const card = el("a", "card");
+    // Ссылки берём только на сам Авито, чтобы не открыть что-то постороннее.
+    if (/^https:\/\/www\.avito\.ru\//.test(item.url)) card.href = item.url;
+    card.target = "_blank";
+    card.rel = "noopener noreferrer";
+    const photo = el("div", "photo");
+    if (item.image && /^https:\/\//.test(item.image)) {
+      const img = el("img");
+      img.src = item.image; img.alt = item.title; img.loading = "lazy"; img.referrerPolicy = "no-referrer";
+      img.onerror = () => photo.replaceChildren("Без фото");
+      photo.append(img);
+    } else {
+      photo.textContent = "Без фото";
+    }
+    card.append(photo, el("div", "slot", SLOTS[slot] || slot), el("div", "title", item.title),
+                el("div", "price", rub(item.price)));
+    if (item.location) card.append(el("div", "place", item.location));
+    grid.append(card);
+  }
+  result.append(grid);
+
+  if (outfit.notes.length) {
+    const notes = el("ul", "notes");
+    for (const note of outfit.notes) notes.append(el("li", null, note));
+    result.append(notes);
+  }
+  result.hidden = false;
+}
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  commitHave();
+  const payload = {wishes: $("wishes").value, have};
+  for (const id of ["city", "budget", "gender", "style", "season", "size", "shoe_size"]) payload[id] = $(id).value;
+  if (!payload.wishes.trim() && !have.length) {
+    setStatus("Опишите пожелания или добавьте вещь, которая у вас есть.", true);
+    return;
+  }
+  $("submit").disabled = true;
+  $("result").hidden = true;
+  setStatus("Ищем на Авито — это займёт до полуминуты…");
+  try {
+    const response = await fetch("/api/outfit", {method: "POST", headers: {"Content-Type": "application/json"},
+                                                 body: JSON.stringify(payload)});
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Что-то пошло не так.");
+    setStatus(Object.keys(data.picks).length ? "" : "Подходящих объявлений не нашлось — попробуйте изменить запрос.");
+    renderOutfit(data);
+  } catch (error) {
+    setStatus(error instanceof TypeError ? "Сервер недоступен. Проверьте, что программа запущена." : error.message, true);
+  } finally {
+    $("submit").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
