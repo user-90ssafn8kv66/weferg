@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duumvirat Awards 2026</title>
+  <meta name="description" content="Duumvirat Awards 2026 — ежегодная премия. Ваш голос решает.">
+  <meta name="theme-color" content="#071426">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#nominations">К номинациям</a>
+
+  <header class="top">
+    <a class="brand" href="#top">Duumvirat Awards</a>
+    <nav aria-label="Основная навигация">
+      <a href="#nominations">Номинации</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">Ежегодная премия</p>
+      <h1 id="hero-title">
+        <span>Duumvirat</span>
+        <span class="hero-accent">Awards</span>
+        <span class="hero-year">2026</span>
+      </h1>
+      <p class="hero-sub">Ваш голос решает</p>
+      <a class="button" href="#nominations">Голосовать</a>
+      <p class="hero-note">Без регистрации · один голос в каждой номинации</p>
+    </section>
+
+    <section id="nominations" class="nominations" aria-labelledby="nominations-title">
+      <div class="section-head">
+        <p class="eyebrow">Голосование</p>
+        <h2 id="nominations-title">Номинации</h2>
+        <p class="section-lead">Выберите кандидата и подтвердите выбор. Голосовать во всех номинациях необязательно. Итоги объявят организаторы.</p>
+      </div>
+      <div id="ballot" class="ballot" aria-busy="true">
+        <p class="ballot-message" role="status">Загружаем номинации…</p>
+      </div>
+      <noscript><p class="ballot-message">Для голосования включите JavaScript.</p></noscript>
+    </section>
+  </main>
+
+  <footer class="bottom">
+    <span>Duumvirat Awards</span>
+    <span>2026</span>
+  </footer>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
