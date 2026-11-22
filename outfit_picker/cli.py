@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from .avito import AvitoBlockedError, AvitoClient
+from .avito import AvitoError, make_client
 from .models import SLOT_NAMES, Outfit
 from .stylist import pick_outfit
 from .wishes import parse_wishes
@@ -23,6 +23,13 @@ def format_outfit(outfit: Outfit) -> str:
     return "\n".join(lines)
 
 
+def add_engine_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--engine", choices=["auto", "browser", "http"], default="auto",
+                        help="как открывать Авито: через браузер (по умолчанию, если установлен Playwright) или по HTTP")
+    parser.add_argument("--show-browser", action="store_true",
+                        help="показать окно браузера — нужно, если Авито просит пройти проверку")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="outfit", description="Подбирает образ из объявлений Авито по пожеланиям и имеющимся вещам.")
@@ -38,18 +45,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--size", default=None, help="размер одежды")
     parser.add_argument("--shoe-size", default=None, help="размер обуви")
     parser.add_argument("--json", action="store_true", help="вывести результат в JSON")
+    add_engine_arguments(parser)
     args = parser.parse_args(argv)
 
     if not args.wishes and not args.have:
         parser.error("укажите пожелания или хотя бы одну вещь через --have")
+    client = make_client(args.engine, headless=not args.show_browser)
     try:
         wishes = parse_wishes(args.wishes, have=args.have, city=args.city, budget=args.budget,
                               gender=args.gender, style=args.style, season=args.season,
                               size=args.size, shoe_size=args.shoe_size)
-        outfit = pick_outfit(wishes, AvitoClient())
-    except (AvitoBlockedError, ValueError) as error:
+        outfit = pick_outfit(wishes, client)
+    except (AvitoError, ValueError, OSError) as error:
         print(error, file=sys.stderr)
         return 1
+    finally:
+        client.close()
     print(json.dumps(outfit.to_dict(), ensure_ascii=False, indent=2) if args.json else format_outfit(outfit))
     return 0 if outfit.picks else 2
 

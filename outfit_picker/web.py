@@ -7,7 +7,8 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from .avito import AvitoBlockedError, AvitoClient
+from .avito import AvitoError, make_client
+from .cli import add_engine_arguments
 from .stylist import SearchClient, pick_outfit
 from .wishes import parse_wishes
 
@@ -28,7 +29,7 @@ def handle_request(payload: dict, client: SearchClient) -> tuple[int, dict]:
         outfit = pick_outfit(parse_wishes(text, have=have, **options), client)
     except ValueError as error:
         return 400, {"error": str(error)}
-    except AvitoBlockedError as error:
+    except AvitoError as error:
         return 502, {"error": str(error)}
     except OSError as error:  # сеть недоступна, таймаут и т. п.
         return 502, {"error": f"Не удалось связаться с Авито: {error}"}
@@ -74,18 +75,22 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="outfit-web", description="Веб-интерфейс подбора образа.")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--no-browser", action="store_true", help="не открывать браузер автоматически")
+    parser.add_argument("--no-open", action="store_true", help="не открывать страницу интерфейса автоматически")
+    add_engine_arguments(parser)
     args = parser.parse_args(argv)
 
-    server = create_server(AvitoClient(), args.host, args.port)
+    client = make_client(args.engine, headless=not args.show_browser)
+    server = create_server(client, args.host, args.port)
     url = f"http://{args.host}:{args.port}/"
     print(f"Интерфейс запущен: {url} (Ctrl+C — остановить)")
-    if not args.no_browser:
+    if not args.no_open:
         webbrowser.open(url)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        client.close()
     return 0
 
 

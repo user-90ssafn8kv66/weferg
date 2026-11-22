@@ -5,7 +5,7 @@ import itertools
 from typing import Protocol
 
 from .models import Item, Outfit, Wishes
-from .wishes import COLOR_RU, detect_color, detect_slot, normalize
+from .wishes import COLOR_RU, detect_color, detect_slot, garment_stem, normalize
 
 NEUTRALS = {"black", "white", "grey", "beige", "navy"}
 # Проверенные сочетания ненейтральных цветов.
@@ -106,7 +106,7 @@ def _item_score(item: Item, slot: str, wishes: Wishes) -> float:
     return score
 
 
-def _candidates(items: list[Item], slot: str, wishes: Wishes) -> list[Item]:
+def _candidates(items: list[Item], slot: str, wishes: Wishes, query: str = "") -> list[Item]:
     seen, result = set(), []
     for item in items:
         title = normalize(item.title)
@@ -116,6 +116,10 @@ def _candidates(items: list[Item], slot: str, wishes: Wishes) -> list[Item]:
             continue
         seen.add(item.id)
         result.append(item)
+    # Авито подмешивает похожие вещи (худи по запросу «рубашка»): если есть точные совпадения, берём только их.
+    stem = garment_stem(query)
+    if stem and (exact := [i for i in result if stem.strip() in normalize(i.title)]):
+        result = exact
     result.sort(key=lambda i: (-_item_score(i, slot, wishes), i.price))
     return result[:TOP_K]
 
@@ -142,7 +146,7 @@ def pick_outfit(wishes: Wishes, client: SearchClient) -> Outfit:
         # Потолок цены на слот — его доля бюджета с запасом, чтобы оставить выбор комбинатору.
         pmax = int(wishes.budget * min(1.0, 1.6 * BUDGET_SHARE[slot] / share_total)) if wishes.budget else None
         query = build_query(slot, wishes)
-        found = _candidates(client.search(query, city=wishes.city, pmax=pmax), slot, wishes)
+        found = _candidates(client.search(query, city=wishes.city, pmax=pmax), slot, wishes, query)
         if found:
             pool[slot] = found
         else:

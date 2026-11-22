@@ -36,6 +36,7 @@ def test_parse_search_page():
     assert first.url == "https://www.avito.ru/moskva/odezhda_obuv_aksessuary/dzhinsy_levis_501_4001"
     assert first.location == "Москва"
     assert first.description == "Новые, с биркой"
+    assert items[1].location == "Казань"
 
 
 def test_parse_wishes_text():
@@ -80,6 +81,16 @@ def test_pick_outfit_respects_budget_and_colors():
     assert outfit.total == 4000 <= w.budget
     assert all(city == "moskva" for _, city, _ in client.calls)
     assert "Итого: 4000 ₽ из 5000 ₽" in format_outfit(outfit)
+
+
+def test_pick_outfit_prefers_the_garment_that_was_searched():
+    client = FakeClient({
+        "рубашка": [item(1, "Худи белое", 500), item(2, "Рубашка белая", 1500)],
+        "брюки": [item(3, "Джинсы черные", 500), item(4, "Брюки серые", 2000)],
+    })
+    w = parse_wishes("деловой летний образ", have=["черные туфли"])
+    outfit = pick_outfit(w, client)
+    assert {slot: i.id for slot, i in outfit.picks.items()} == {"top": "2", "bottom": "4"}
 
 
 def test_pick_outfit_reports_missing_slot():

@@ -75,6 +75,14 @@ def _find(text: str, stems: list[str]) -> int:
     return best
 
 
+def garment_stem(text: str) -> str | None:
+    """Основа названия вещи, стоящего в тексте первым: «брюки классические» -> «брюк»."""
+    text = normalize(text) + " "
+    hits = [(m.start(), stem) for stems in SLOT_STEMS.values() for stem in stems
+            if (m := re.search(r"(?<![а-яa-z])" + re.escape(stem), text))]
+    return min(hits)[1] if hits else None
+
+
 def detect_slot(text: str) -> str | None:
     text = normalize(text) + " "
     hits = [(pos, slot) for slot, stems in SLOT_STEMS.items() if (pos := _find(text, stems)) >= 0]
