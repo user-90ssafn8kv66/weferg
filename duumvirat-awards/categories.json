@@ -1,0 +1,162 @@
+[
+  {
+    "id": "king",
+    "title": "дуумвират кинг",
+    "icon": "crown",
+    "candidates": [
+      {
+        "id": "king-romich",
+        "name": "ромич"
+      },
+      {
+        "id": "king-vasiliy",
+        "name": "василий"
+      },
+      {
+        "id": "king-vlad-logutov",
+        "name": "влад логутов"
+      }
+    ]
+  },
+  {
+    "id": "queen",
+    "title": "дуумвират квин",
+    "icon": "tiara",
+    "candidates": [
+      {
+        "id": "queen-rita",
+        "name": "рита"
+      },
+      {
+        "id": "queen-angelina",
+        "name": "ангелина"
+      },
+      {
+        "id": "queen-sasha",
+        "name": "саша подруга влада"
+      },
+      {
+        "id": "queen-darina",
+        "name": "дарина"
+      }
+    ]
+  },
+  {
+    "id": "lesik",
+    "title": "лесик года",
+    "icon": "heart",
+    "candidates": [
+      {
+        "id": "lesik-aleksey-rity",
+        "name": "алексей риты"
+      },
+      {
+        "id": "lesik-anyutichevoy",
+        "name": "лесик анютичевой"
+      },
+      {
+        "id": "lesik-aleksey-otchim",
+        "name": "алексей отчим"
+      },
+      {
+        "id": "lesik-leha-kati",
+        "name": "леха кати"
+      },
+      {
+        "id": "lesik-matyuhinoy",
+        "name": "лесю матюхиной"
+      }
+    ]
+  },
+  {
+    "id": "zavoz",
+    "title": "завоз года",
+    "icon": "bolt",
+    "candidates": [
+      {
+        "id": "zavoz-kiryuha",
+        "name": "кирюха"
+      },
+      {
+        "id": "zavoz-abriviatury",
+        "name": "абривиатуры"
+      },
+      {
+        "id": "zavoz-situaciya",
+        "name": "ситуация пиздец"
+      },
+      {
+        "id": "zavoz-futbolka",
+        "name": "влад логутов порвал футболку андрею прямо на видео"
+      }
+    ]
+  },
+  {
+    "id": "cs",
+    "title": "кс игрок года",
+    "icon": "crosshair",
+    "candidates": [
+      {
+        "id": "cs-vlad",
+        "name": "влад"
+      }
+    ]
+  },
+  {
+    "id": "dota",
+    "title": "дотер года",
+    "icon": "sword",
+    "candidates": [
+      {
+        "id": "dota-paciki",
+        "name": "пацики из баньки"
+      }
+    ]
+  },
+  {
+    "id": "meme",
+    "title": "мем года",
+    "icon": "mask",
+    "candidates": [
+      {
+        "id": "meme-kalabushkin",
+        "name": "калабушкин"
+      },
+      {
+        "id": "meme-spkya",
+        "name": "спкя"
+      },
+      {
+        "id": "meme-serega",
+        "name": "серега"
+      },
+      {
+        "id": "meme-yasha",
+        "name": "яша"
+      }
+    ]
+  },
+  {
+    "id": "discovery",
+    "title": "открытие года",
+    "icon": "star",
+    "candidates": [
+      {
+        "id": "discovery-vlad",
+        "name": "влад"
+      },
+      {
+        "id": "discovery-rostik",
+        "name": "ростик петраков"
+      },
+      {
+        "id": "discovery-romich",
+        "name": "ромич"
+      },
+      {
+        "id": "discovery-paren-rity",
+        "name": "парень риты"
+      }
+    ]
+  }
+]
