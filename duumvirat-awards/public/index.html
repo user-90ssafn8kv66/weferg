@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duumvirat Awards 2026</title>
+  <meta name="description" content="Duumvirat Awards 2026 — ежегодная премия. Ваш голос решает.">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Forum&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#nominations">К номинациям</a>
+
+  <!-- Gradients shared by every crystal on the page -->
+  <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="g-light" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8fb6ff"/><stop offset="1" stop-color="#d2f8ff"/>
+      </linearGradient>
+      <linearGradient id="g-mid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2f62f2"/><stop offset="1" stop-color="#55cfff"/>
+      </linearGradient>
+      <linearGradient id="g-dark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1433b8"/><stop offset="1" stop-color="#2a8fe6"/>
+      </linearGradient>
+      <linearGradient id="g-deep" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0a1a78"/><stop offset="1" stop-color="#1a5fc4"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <header class="top">
+    <nav aria-label="Основная навигация">
+      <a href="#nominations">Номинации</a>
+    </nav>
+    <a class="brand" href="#top">Duumvirat</a>
+    <span class="top-year">2026</span>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <svg class="hero-scene" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="sky" cx="800" cy="560" r="820" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#cfeaff"/>
+            <stop offset="0.1" stop-color="#5aa5ff"/>
+            <stop offset="0.32" stop-color="#1c49c9"/>
+            <stop offset="0.62" stop-color="#0e2470"/>
+            <stop offset="1" stop-color="#071236"/>
+          </radialGradient>
+          <linearGradient id="shaft" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#bfe2ff" stop-opacity="0"/>
+            <stop offset="1" stop-color="#bfe2ff" stop-opacity="0.45"/>
+          </linearGradient>
+          <filter id="soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+        </defs>
+        <rect width="1600" height="900" fill="url(#sky)"/>
+        <polygon points="700,0 900,0 980,620 620,620" fill="url(#shaft)" filter="url(#soft)"/>
+        <g fill="#02040d" filter="url(#soft)" opacity="0.75">
+          <ellipse cx="260" cy="90" rx="380" ry="60"/>
+          <ellipse cx="1380" cy="130" rx="360" ry="55"/>
+          <ellipse cx="1050" cy="40" rx="260" ry="40"/>
+        </g>
+        <g fill="#eaf6ff">
+          <circle cx="180" cy="210" r="1.6"/><circle cx="420" cy="150" r="1.2"/><circle cx="560" cy="260" r="1.4"/>
+          <circle cx="1090" cy="190" r="1.3"/><circle cx="1260" cy="250" r="1.6"/><circle cx="1470" cy="230" r="1.2"/>
+          <circle cx="330" cy="310" r="1"/><circle cx="1360" cy="340" r="1"/>
+        </g>
+        <polygon points="0,540 170,450 320,515 470,455 610,540 990,540 1120,465 1280,520 1430,440 1600,515 1600,900 0,900" fill="#0b2470" opacity="0.75"/>
+        <polygon points="0,330 150,300 262,382 300,470 420,522 520,640 640,720 0,900" fill="#02040f"/>
+        <polygon points="150,300 262,382 300,470 216,430" fill="#1b3c9c" opacity="0.45"/>
+        <polygon points="300,470 420,522 520,640 400,590" fill="#122a78" opacity="0.45"/>
+        <polygon points="1600,300 1440,280 1330,370 1296,468 1180,520 1080,640 960,720 1600,900" fill="#02040f"/>
+        <polygon points="1440,280 1330,370 1296,468 1384,424" fill="#1b3c9c" opacity="0.45"/>
+        <polygon points="1296,468 1180,520 1080,640 1200,588" fill="#122a78" opacity="0.45"/>
+        <polygon points="0,700 240,640 520,700 800,670 1080,700 1360,640 1600,700 1600,900 0,900" fill="#02040d"/>
+      </svg>
+      <svg id="hero-crystals" class="hero-crystals" viewBox="-320 -560 640 600" aria-hidden="true" focusable="false"></svg>
+
+      <div class="hero-text">
+        <h1 id="hero-title"><span>Duumvirat</span> <span>Awards</span></h1>
+        <p class="hero-sub">Главная премия года</p>
+        <p class="hero-year">2026</p>
+        <a class="gem gem-lg" href="#nominations">Проголосовать</a>
+      </div>
+    </section>
+
+    <section id="nominations" class="nominations" aria-labelledby="nominations-title">
+      <h2 id="nominations-title">Номинации</h2>
+      <div id="ballot" class="ballot" aria-busy="true">
+        <p class="ballot-message" role="status">Загружаем номинации…</p>
+      </div>
+      <noscript><p class="ballot-message">Для голосования включите JavaScript.</p></noscript>
+    </section>
+  </main>
+
+  <footer class="bottom">
+    <span>Duumvirat Awards</span>
+    <span>2026</span>
+  </footer>
+
+  <dialog id="vote-dialog" class="vote" aria-labelledby="vote-title">
+    <div class="vote-body">
+      <button class="vote-close" type="button" aria-label="Закрыть">×</button>
+      <div class="vote-icon"></div>
+      <h3 id="vote-title"></h3>
+      <p class="vote-hint">Сделай выбор</p>
+      <form novalidate>
+        <fieldset>
+          <legend class="visually-hidden">Кандидаты</legend>
+          <div class="options"></div>
+        </fieldset>
+        <div class="actions">
+          <button class="gem" type="submit" disabled>Отдать голос</button>
+          <p class="status" role="status"></p>
+          <button class="ghost" type="button" hidden>К номинациям</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
