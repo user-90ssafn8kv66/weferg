@@ -135,7 +135,8 @@ def garment_stem(text: str) -> str | None:
 
 
 def detect_slot(text: str) -> str | None:
-    text = normalize(text) + " "
+    # «Джинсовая куртка» — это куртка, а не джинсы.
+    text = re.sub(r"джинсов[а-я]*", "", normalize(text)) + " "
     hits = [(pos, slot) for slot, stems in SLOT_STEMS.items() if (pos := _find(text, stems)) >= 0]
     return min(hits)[1] if hits else None
 

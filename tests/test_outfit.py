@@ -6,6 +6,7 @@ from outfit_picker import AvitoBlockedError, AvitoClient, Item, parse_wishes, pi
 from outfit_picker.avito import parse_search_page
 from outfit_picker.cli import format_outfit
 from outfit_picker.stylist import build_query, color_harmony, needed_slots
+from outfit_picker.wishes import detect_slot
 
 FIXTURE = (Path(__file__).parent / "fixtures" / "search.html").read_text("utf-8")
 
@@ -154,6 +155,18 @@ def test_client_fetches_parses_and_caches(tmp_path):
     assert len(session.urls) == 1
     assert session.urls[0].startswith("https://www.avito.ru/moskva/odezhda_obuv_aksessuary?q=")
     assert "pmax=5000" in session.urls[0]
+
+
+def test_denim_jacket_is_outerwear():
+    assert detect_slot("Джинсовая куртка maag xl в Москве") == "outerwear"
+    assert detect_slot("Джинсы черные") == "bottom"
+
+
+def test_client_does_not_cache_empty_results(tmp_path):
+    session = _Session(_Response(200, "<html></html>"))
+    client = AvitoClient(session=session, cache_dir=tmp_path, delay=(0, 0))
+    assert client.search("джинсы") == [] and client.search("джинсы") == []
+    assert len(session.urls) == 2
 
 
 def test_client_reports_block(tmp_path):

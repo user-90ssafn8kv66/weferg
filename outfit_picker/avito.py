@@ -24,7 +24,7 @@ USER_AGENT = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like G
               "Chrome/130.0 Safari/537.36")
 ITEM_SELECTOR = '[data-marker="item"]'
 BLOCK_MARK = "Доступ ограничен"
-NO_RESULTS_WAIT = 8  # сколько секунд ждать объявления, прежде чем считать выдачу пустой
+NO_RESULTS_WAIT = 15  # сколько секунд ждать объявления, прежде чем считать выдачу пустой
 
 
 class AvitoError(RuntimeError):
@@ -92,8 +92,10 @@ class AvitoClient:
                pmax: int | None = None, limit: int = 30) -> list[Item]:
         url = self.search_url(query, city=city, pmin=pmin, pmax=pmax)
         cache_file = self.cache_dir / (hashlib.sha1(url.encode()).hexdigest() + ".json")
+        # Пустую выдачу не кэшируем: чаще всего это страница, которая не успела загрузиться.
         if cache_file.exists() and time.time() - cache_file.stat().st_mtime < self.cache_ttl:
-            return [Item(**raw) for raw in json.loads(cache_file.read_text("utf-8"))][:limit]
+            if cached := json.loads(cache_file.read_text("utf-8")):
+                return [Item(**raw) for raw in cached][:limit]
 
         # Пауза между запросами, чтобы не нагружать сайт.
         wait = self._last_request + random.uniform(*self.delay) - time.time()
@@ -104,8 +106,9 @@ class AvitoClient:
         finally:
             self._last_request = time.time()
         items = parse_search_page(html)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        cache_file.write_text(json.dumps([vars(i) for i in items], ensure_ascii=False), "utf-8")
+        if items:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            cache_file.write_text(json.dumps([vars(i) for i in items], ensure_ascii=False), "utf-8")
         return items[:limit]
 
     def _fetch(self, url: str) -> str:
